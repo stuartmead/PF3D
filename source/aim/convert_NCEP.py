@@ -25,7 +25,7 @@ mostly by deriving them from the data itself.
 """
 
 import os, sys
-from Scientific.IO.NetCDF import NetCDFFile
+from scipy.io.netcdf import NetCDFFile
 
 def usage():
     return 'Usage:\n  python %s <NCEP file>' % sys.argv[0]

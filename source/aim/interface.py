@@ -94,7 +94,9 @@ def run_scenario(scenario,
                  dircomment=None,
                  store_locally=False,
                  timestamp_output=True,
-                 verbose=True):
+                 verbose=True,
+		 #SRM modify
+		 parallel=False):
     """Run volcanic ash impact scenario
 
     The argument scenario can be either
@@ -179,7 +181,9 @@ def run_scenario(scenario,
                             timestamp_output=timestamp_output,
                             store_locally=store_locally,
                             output_dir=output_dir,
-                            verbose=verbose)
+                            verbose=verbose,
+		            #SRM Modify
+			    parallel=parallel)
 
         # Return aim object in case further processing is needed
         return aim
@@ -190,7 +194,8 @@ def _run_scenario(scenario, dircomment=None,
                   store_locally=False,
                   timestamp_output=True,
                   output_dir=None,
-                  verbose=True):
+                  verbose=True,
+                  parallel=False):
     """Run volcanic ash impact scenario
 
     The argument scenario can be either
@@ -245,7 +250,8 @@ def _run_scenario(scenario, dircomment=None,
               store_locally=store_locally,
               timestamp_output=timestamp_output,
               output_dir=output_dir,
-              verbose=verbose)
+              verbose=verbose,
+              parallel=parallel)
 
     if not aim.postprocessing:
         # Store scenario script, input data files and
@@ -262,7 +268,7 @@ def _run_scenario(scenario, dircomment=None,
         aim.set_granum(verbose=verbose)
         aim.set_database(verbose=verbose)
         aim.set_source(verbose=verbose)
-        aim.run_fall3d(verbose=verbose)
+        aim.run_fall3d(verbose=verbose, parallel=parallel)
 
     # Fall3d postprocessing nc2grd
     #aim.nc2grd()
@@ -827,8 +833,9 @@ def contour_hazardmap(scenario, verbose=True):
 
 
     filename = 'HazardMaps.res.nc' # Hardwired name as per Fall3d
-
-    from Scientific.IO.NetCDF import NetCDFFile
+    #SRM modify
+    from scipy.io.netcdf import NetCDFFile
+    #from Scientific.IO.NetCDF import NetCDFFile
 
     # Get params from model script
     params = get_scenario_parameters(scenario)

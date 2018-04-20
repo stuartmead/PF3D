@@ -10,8 +10,7 @@ import numpy
 import logging
 import time
 import string
-from Scientific.IO.NetCDF import NetCDFFile
-
+from scipy.io.netcdf import NetCDFFile
 
 def run(cmd,
         stdout=None,
@@ -241,9 +240,10 @@ def build_output_dir(tephra_output_dir='tephra', type_name='scenarios', scenario
 
     output_dir = os.path.join(output_dir, type_name)
     output_dir = os.path.join(output_dir, scenario_name)
-
-    user = get_username()
-    output_dir = os.path.join(output_dir, user)
+    
+    #SRM the 'user' part of the directory is really annoying
+    #user = get_username()
+    #output_dir = os.path.join(output_dir, user)
 
     if timestamp_output:
         scenario_dir = os.path.join(output_dir, 'D' + get_timestamp())
@@ -430,7 +430,7 @@ def get_fall3d_home(verbose=True):
     else:
         FALL3DHOME = os.getcwd()
 
-    Fall3d_dir = os.path.join(FALL3DHOME, fall3d_distro)
+    Fall3d_dir = FALL3DHOME    
 
     return Fall3d_dir
 

@@ -29,7 +29,9 @@ class AIM:
                  dircomment=None,
                  output_dir=None,
                  echo=True,
-                 verbose=True):
+                 verbose=True,
+		 #SRM Modify
+		 parallel=False):
         """Create AIM instance, common file names
 
 
@@ -198,8 +200,8 @@ class AIM:
         #--------------------------------------
 
         # Fall3d directories
-        self.Fall3d_dir = Fall3d_dir = get_fall3d_home()
-        self.utilities_dir = os.path.join(Fall3d_dir, 'Utilities')
+        self.Fall3d_dir = Fall3d_dir = os.path.join(get_fall3d_home(), 'bin')
+        self.utilities_dir = os.path.join(get_fall3d_home(), 'bin')
 
         # Fall3d input files
         self.inputfile = self.basepath + '.inp'
@@ -280,25 +282,27 @@ class AIM:
         Requires
         - input file
         """
-
-        grainfilename = self.scenario_name + '.grn'
+        #SRM Modify - 7.0
+        grainfilename = self.scenario_name + '.tgsd'
+        #grainfilename = self.scenario_name + '.grn'
         if grainfilename in os.listdir('.'):
             print 'Grainfile found - will not run SetGrn'
             s = 'cp %s %s' % (grainfilename, self.grainfile)
             run(s)
             return
 
-
-        executable = os.path.join(self.utilities_dir,
-                                  'SetGrn', 'SetGrn.PUB.exe')
+	#SRM modify
+        executable = os.path.join(self.utilities_dir, 'SetTgsd')
+        #executable = os.path.join(self.utilities_dir,
+        #                          'SetGrn', 'SetGrn.PUB.exe')
 
         logfile = self.logbasepath + '.SetGrn.log'
 
         if verbose:
             header('Setting grain size (SetGrn)')
-
+        #SRM modify - self.grainfile to grainfilename
         cmd = '%s %s %s %s' % (executable, logfile,
-                               self.inputfile, self.grainfile)
+                               self.inputfile, grainfilename)
 
         self.runscript(cmd, 'SetGrn', logfile, lines=4,
                        verbose=verbose)
@@ -321,9 +325,10 @@ class AIM:
             run(s)
             return
 
-
-        executable = os.path.join(self.utilities_dir,
-                                  'SetDbs', 'SetDbs.PUB.exe')
+        #SRM Modify
+        executable = os.path.join(self.utilities_dir, 'SetDbs')
+        #executable = os.path.join(self.utilities_dir,
+        #                          'SetDbs', 'SetDbs.PUB.exe')
 
         logfile = self.logbasepath + '.SetDbs.log'
 
@@ -340,39 +345,41 @@ class AIM:
         self.runscript(cmd, 'SetDbs', logfile, lines=5,
                        verbose=verbose)
 
-
+    #SRM Modify set source quite a bit
     def set_source(self, verbose=True):
         """Create eruptive source file
 
         Requires
         - input file
-        - grain file
+        - grain file - tgsd and output
         - database file
         """
-
-        executable = os.path.join(self.utilities_dir,
-                                  'SetSrc', 'SetSrc.PUB.exe')
+        #SRM Modify
+        executable = os.path.join(self.utilities_dir, 'SetSrc')
+        #executable = os.path.join(self.utilities_dir,
+        #                          'SetSrc', 'SetSrc.PUB.exe')
 
         logfile = self.logbasepath + '.SetSrc.log'
 
         if verbose:
             header('Creating eruptive source file (SetSrc)')
 
-
-        cmd = '%s '*8 % (executable, logfile,
+        #SRM Modify
+        cmd = '%s '*8 % (executable, 'FALL3D', logfile,
                          self.inputfile,
-                         self.sourcefile,
+                         self.scenario_name + '.tgsd',
                          self.grainfile,
-                         self.databasefile,
-                         'FALL3D',    # Taken from hardwired values in Script-SetSrc
-                         'YES')
+                         self.sourcefile,
+                         self.databasefile)#,
+                         #'FALL3D',    # Taken from hardwired values in Script-SetSrc
+                         #'YES')
 
 
         self.runscript(cmd, 'SetSrc', logfile, lines=5,
                        verbose=verbose)
 
 
-    def run_fall3d(self, verbose=True):
+    def run_fall3d(self, verbose=True, parallel=False):
         """Run Fall3d (serial)
 
         Requires
@@ -381,9 +388,11 @@ class AIM:
         - grain file
         - database file
         """
-
-        executable = os.path.join(self.Fall3d_dir, 'Fall3d_ser.PUB.exe')
-
+        #SRM modify
+        executable = os.path.join(self.Fall3d_dir, 'Fall3d_ser')
+        if parallel:
+            executable = os.path.join(self.Fall3d_dir, 'Fall3d_par')
+ 
         logfile = self.logbasepath + '.Fall3d.log'
 
         if verbose:
@@ -398,6 +407,19 @@ class AIM:
                          logfile,
                          self.resultfile)
 
+        if parallel:
+            cmd = '%s '*11 % ('mpiexec -n',
+			 '6',			 
+			 executable,
+                         self.inputfile,
+                         self.sourcefile,
+                         self.grainfile,
+                         self.databasefile,
+                         logfile,
+                         self.resultfile,
+                         self.basepath + '.pts',
+			 '1')  
+
         self.runscript(cmd, 'Fall3d', logfile, lines=2,
                        verbose=verbose)
 
@@ -411,7 +433,8 @@ class AIM:
         - grain file
         - database file
         """
-
+        #SRM Modify
+        #executable = os.path.join(self.utilities_dir, 'nc2grd')
         executable = os.path.join(self.utilities_dir, 'nc2grd', 'nc2grd.exe')
 
         logfile = self.logbasepath + '.nc2grd.log'

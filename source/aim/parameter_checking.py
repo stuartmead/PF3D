@@ -28,9 +28,11 @@ def check_parameter_ranges(params):
     try:
         float(params['Mass_eruption_rate'])
     except:
+        #SRM - we are only error-checking the woodhouse estimate method now, this needs to be modified to account for
+        #  all estimate methods
         if isinstance(params['mass_eruption_rate'], basestring):
-            msg = 'The variable mass_eruption_rate must be either a number, a list or the word "estimate"'
-            assert params['mass_eruption_rate'].lower() == 'estimate', msg
+            msg = 'The variable mass_eruption_rate must be either a number, a list or the word "estimate-woodhouse"'
+            assert params['mass_eruption_rate'].lower() == 'estimate-woodhouse', msg
         else:
             # Must be a list - convert
             params['mass_eruption_rate'] = list_to_string(params['mass_eruption_rate'])
