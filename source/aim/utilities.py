@@ -238,7 +238,6 @@ def build_output_dir(tephra_output_dir='tephra', type_name='scenarios', scenario
         output_dir = get_tephradata()
 
 
-    output_dir = os.path.join(output_dir, type_name)
     output_dir = os.path.join(output_dir, scenario_name)
     
     #SRM the 'user' part of the directory is really annoying

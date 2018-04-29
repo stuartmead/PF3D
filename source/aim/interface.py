@@ -322,8 +322,7 @@ def run_nc2prof(windfield_directory, verbose=True):
     # FIXME: Perhaps include into AIM class (somehow)
 
     Fall3d_dir = get_fall3d_home()
-    utilities_dir = os.path.join(Fall3d_dir, 'Utilities')
-    executable = os.path.join(utilities_dir, 'nc2prof', 'nc2prof.exe')
+    executable = os.path.join(Fall3d_dir, 'nc2prof')
 
     if verbose:
         header('Running nc2prof in %s' % windfield_directory)
@@ -717,7 +716,7 @@ def run_multiple_windfields(scenario,
 
             # Run scenario
             aim = _run_scenario(params,
-                                timestamp_output=True,
+                                timestamp_output=False,
                                 dircomment=dircomment + '_run%i_proc%i' % (i, p))
 
             # Make sure folder is present and can be shared by group

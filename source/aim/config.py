@@ -186,7 +186,7 @@ modules['nc2grd'] = mod
 # Convert NCEP data to wind profile
 mod = Module()
 mod.path = 'aftermarket_modules/nc2prof'
-mod.prog = 'nc2prof.exe'
+mod.prog = 'nc2prof'
 mod.mods = 'KindType.o Master.o InpOut.o TimeFun.o'
 mod.objs = 'nc2prof.o openinp.o runend.o readinp.o readres0.o readres.o wripro.o'
 modules['nc2prof'] = mod

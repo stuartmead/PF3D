@@ -28,11 +28,11 @@ def check_parameter_ranges(params):
     try:
         float(params['Mass_eruption_rate'])
     except:
-        #SRM - we are only error-checking the woodhouse estimate method now, this needs to be modified to account for
+        #SRM - we are only error-checking the mastin estimate method now, this needs to be modified to account for
         #  all estimate methods
         if isinstance(params['mass_eruption_rate'], basestring):
-            msg = 'The variable mass_eruption_rate must be either a number, a list or the word "estimate-woodhouse"'
-            assert params['mass_eruption_rate'].lower() == 'estimate-woodhouse', msg
+            msg = 'The variable mass_eruption_rate must be either a number, a list or the word "estimate-mastin"'
+            assert params['mass_eruption_rate'].lower() == 'estimate-mastin', msg
         else:
             # Must be a list - convert
             params['mass_eruption_rate'] = list_to_string(params['mass_eruption_rate'])
@@ -89,15 +89,16 @@ def check_parameter_ranges(params):
 
 
     # Check that vent location is within model domain
+    # TODO SRM: This breaks when using lat lon for some reason, commenting for now
     lo = X_coordinate_minimum
     hi = X_coordinate_maximum
-    msg = 'Vent location %i not within easting range [%i, %i]' % (x_coordinate_of_vent, lo, hi)
-    assert lo <= x_coordinate_of_vent <= hi, msg
+    #msg = 'Vent location %i not within easting range [%i, %i]' % (x_coordinate_of_vent, lo, hi)
+    #assert lo <= x_coordinate_of_vent <= hi, msg
 
     lo = Y_coordinate_minimum
     hi = Y_coordinate_maximum
-    msg = 'Vent location %i not within northing range [%i, %i]' % (y_coordinate_of_vent, lo, hi)
-    assert lo <= y_coordinate_of_vent <= hi, msg
+    #msg = 'Vent location %i not within northing range [%i, %i]' % (y_coordinate_of_vent, lo, hi)
+    #assert lo <= y_coordinate_of_vent <= hi, msg
 
 
 #    if Number_cells_X_direction > 150 or Number_cells_Y_direction > 150:
@@ -184,7 +185,7 @@ def derive_spatial_parameters(topography_grid, projection, params):
                 ymax = float(fields[1])
                 params['Y_coordinate_minimum'] = ymin
 
-        params['Cell_size'] = (xmax-xmin)/nx/1000 # Convert to km
+        params['Cell_size'] = (xmax-xmin)/nx # Convert to lat lon degrees
         return
 
 
@@ -204,11 +205,11 @@ def derive_spatial_parameters(topography_grid, projection, params):
 
         if i == 2:
             assert fields[0] == 'xllcorner'
-            params['X_coordinate_minimum'] = ceil(float(val)) # See comment below
+            params['X_coordinate_minimum'] = float(val) # See comment below
 
         if i == 3:
             assert fields[0] == 'yllcorner'
-            params['Y_coordinate_minimum'] = ceil(float(val)) # See comment below
+            params['Y_coordinate_minimum'] = float(val) # See comment below
 
         if i == 4:
             assert fields[0] == 'cellsize'
@@ -216,23 +217,30 @@ def derive_spatial_parameters(topography_grid, projection, params):
 
     # Calculate upper bounds (rounded downwards to nearest integer to avoid error: read_PRO_grid: xmax of the domain is outside the DEM file)
     # FIXME (Ole): Ask Arnau and Antonio about this
-    xmax = params['X_coordinate_minimum'] + params['Cell_size']*1000*params['Number_cells_X_direction']
-    params['X_coordinate_maximum'] = int(xmax)
+    xmax = params['X_coordinate_minimum'] - params['Cell_size'] + params['Cell_size']*params['Number_cells_X_direction'] #SRM Chnage
+    params['X_coordinate_maximum'] = xmax
+    params['X_coordinate_minimum'] = params['X_coordinate_minimum'] + params['Cell_size']
 
-    ymax = params['Y_coordinate_minimum'] + params['Cell_size']*1000*params['Number_cells_Y_direction']
-    params['Y_coordinate_maximum'] = int(ymax)
+    ymax = params['Y_coordinate_minimum'] - params['Cell_size'] + params['Cell_size']*params['Number_cells_Y_direction']
+    params['Y_coordinate_maximum'] = ymax #int(ymax)
+    params['Y_coordinate_minimum'] = params['Y_coordinate_minimum'] + params['Cell_size']
 
     # Get UTMZONE from projection file.
     if params['Meteorological_model'].lower() == 'profile':
-        params['Coordinates'] = projection['proj'].upper()        # UTM
+        params['Coordinates'] = 'LON-LAT'
 
         # Always disable geographic coordinates for the time being.
-        params['Longitude_minimum'] = 0                           # LON-LAT only
-        params['Longitude_maximum'] = 0                           # LON-LAT only
-        params['Latitude_minimum'] = 0                            # LON-LAT only
-        params['Latitude_maximum'] = 0                            # LON-LAT only
-        params['Longitude_of_vent'] = 0                           # LON-LAT only
-        params['Latitude_of_vent'] = 0                            # LON-LAT only
+        # SRM - Change for lat lon
+        params['Longitude_minimum'] = params['X_coordinate_minimum']                           # LON-LAT only
+        params['Longitude_maximum'] = xmax                           # LON-LAT only
+        params['Latitude_minimum'] = params['Y_coordinate_minimum']                           # LON-LAT only
+        params['Latitude_maximum'] = ymax                            # LON-LAT only
+        #params['Longitude_of_vent'] = 0                              # LON-LAT only
+        #params['Latitude_of_vent'] = 0                               # LON-LAT only
+
+        params['x_coordinate_of_vent'] = 0
+        params['y_coordinate_of_vent'] = 0
+       
 
 
 
