@@ -213,7 +213,7 @@ def derive_spatial_parameters(topography_grid, projection, params):
 
         if i == 4:
             assert fields[0] == 'cellsize'
-            params['Cell_size'] = float(val)/1000  # Convert to km
+            params['Cell_size'] = float(val)  # Convert to km
 
     # Calculate upper bounds (rounded downwards to nearest integer to avoid error: read_PRO_grid: xmax of the domain is outside the DEM file)
     # FIXME (Ole): Ask Arnau and Antonio about this

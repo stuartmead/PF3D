@@ -418,7 +418,7 @@ class AIM:
                          logfile,
                          self.resultfile,
                          self.basepath + '.pts',
-			 '1')  
+			 '6')  
 
         self.runscript(cmd, 'Fall3d', logfile, lines=2,
                        verbose=verbose)
@@ -930,7 +930,7 @@ class AIM:
         header3 = '%f %f' % (xllcorner, self.params['X_coordinate_maximum'] + self.params['Cell_size'] )
         header4 = '%f %f' % (yllcorner, self.params['Y_coordinate_maximum'] + self.params['Cell_size'] )
         header5 = '0.0 0.0' # Can be obtained from data if needed
-
+        
         outfile = open(self.topography, 'w')
         outfile.write(header1+'\n')
         outfile.write(header2+'\n')
